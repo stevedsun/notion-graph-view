@@ -1,9 +1,8 @@
 from notion.client import NotionClient
 
-from collection_parser import CollectionParser
 from config import *
 from graph_render import render
-from page_parser import PageParser
+from parser import CollectionParser, PageParser
 
 
 def read_page(token_v2, page_url):
@@ -26,7 +25,6 @@ def bfs_block(block):
         render(block.title, graph)
     else:
         page_parser = PageParser(block)
-        page_parser.parse()
 
 
 if __name__ == '__main__':

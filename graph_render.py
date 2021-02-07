@@ -7,8 +7,8 @@ template = '''
   <meta charset="UTF-8">
   <style type="text/css">
     #container {
-      width: 600px;
-      height: 600px;
+      width: 800px;
+      height: 800px;
       border: 1px solid lightgray;
     }
 
@@ -17,7 +17,7 @@ template = '''
 </head>
 <body>
 <div id="container"></div>
-<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script type="text/javascript" src="vis-network.min.js"></script>
 <script>
     var nodes = new vis.DataSet({{nodes}});
     var edges = new vis.DataSet({{edges}});
@@ -27,6 +27,7 @@ template = '''
         edges: edges
     };
     var options = {
+        layout: { randomSeed: 2},
         nodes: {
             shape: "dot",
             size: 5, 
@@ -42,6 +43,6 @@ template = '''
 def render(title, graph):
     t = Template(template)
     html = t.render(title=title, nodes=graph['nodes'], edges=graph['edges'])
-    f = open("graph.html", "w")
+    f = open("graph_view.html", "w")
     f.write(html)
     f.close()
