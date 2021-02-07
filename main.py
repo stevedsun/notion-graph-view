@@ -14,17 +14,14 @@ def read_page(token_v2, page_url):
 
 def bfs_block(block):
     print(block.type, block.title)
-    if block.type == "collection_view":
+    if block.type == "collection_view_page":
         collection = block.collection
         parser = CollectionParser(collection)
-        graph = parser.get_graph()
-    elif block.type == "collection_view_page":
-        collection = block.collection
-        parser = CollectionParser(collection)
-        graph = parser.get_graph()
-        render(block.title, graph)
     else:
-        page_parser = PageParser(block)
+        parser = PageParser(block)
+
+    graph = parser.get_graph()
+    render(block.title, graph)
 
 
 if __name__ == '__main__':
