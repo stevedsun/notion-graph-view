@@ -1,7 +1,7 @@
 from notion.client import NotionClient
 
 from config import *
-from graph_render import render
+from render import render
 from parser import CollectionParser, PageParser
 
 
