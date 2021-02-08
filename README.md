@@ -2,6 +2,8 @@
 
 Exporting Notion pages to obsidian-like graph view.
 
+![](https://tva1.sinaimg.cn/large/008eGmZEly1gng2xuwjutj30u10u0tjo.jpg)
+
 ## How to use it
 
 Install dependencies with `pipenv` or `pip`:
