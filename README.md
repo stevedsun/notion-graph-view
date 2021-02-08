@@ -1,4 +1,5 @@
-# notion-graph-view
+# Notion Graph View
+![](https://img.shields.io/github/pipenv/locked/python-version/stevedsun/notion-graph-view)
 
 Export Notion pages to a Roam Research like graph view.
 
