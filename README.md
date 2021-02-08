@@ -14,7 +14,7 @@ pip install
 pipenv install
 ```
 
-Login notion.so and get `token_v2` from browser. Paste it to `config.py`>`my_token_v2`.
+Login notion.so and get `token_v2` from browser ([How?](https://www.redgregory.com/notion/2020/6/15/9zuzav95gwzwewdu1dspweqbv481s5)). Paste it to `config.py`>`my_token_v2`.
 
 Paste the page url which your want to analyse into `config.py`>`my_url`. 
 
