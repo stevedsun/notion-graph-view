@@ -128,5 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea/
-config.py
 graph_view.html
