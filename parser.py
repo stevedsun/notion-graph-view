@@ -35,7 +35,10 @@ class Parser:
         backlinks = page.get_backlinks()
         if backlinks:
             for block in backlinks:
-                linked_block = block.parent
+                if block.type == 'page':
+                    linked_block = block
+                else:
+                    linked_block = block.parent
                 self.add_node(linked_block.id, linked_block.title_plaintext)
                 self.add_edge(page.id, linked_block.id)
 
