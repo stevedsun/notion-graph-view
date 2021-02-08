@@ -34,7 +34,7 @@ class Parser:
         backlinks = page.get_backlinks()
         if backlinks:
             for block in backlinks:
-                if block.type == 'page':
+                if block.type == 'page' or block.type == 'collection_view_page':
                     linked_block = block
                 else:
                     linked_block = block.parent
