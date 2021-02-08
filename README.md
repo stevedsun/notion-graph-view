@@ -1,6 +1,6 @@
 # notion-graph-view
 
-Exporting Notion pages to obsidian-like graph view.
+Export Notion pages to a Roam Research like graph view.
 
 ![](https://tva1.sinaimg.cn/large/008eGmZEly1gng2xuwjutj30u10u0tjo.jpg)
 

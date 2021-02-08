@@ -1,4 +1,3 @@
-
 class Parser:
     def __init__(self, block):
         self.props = []
@@ -50,7 +49,11 @@ class Parser:
             self.add_edge(collection.id, row.id)
             # parse properties
             for relation_prop in self.relation_props:
-                relation_block_list = row.get_property(relation_prop)
+                try:
+                    relation_block_list = row.get_property(relation_prop)
+                except AttributeError:
+                    continue
+
                 for rb in relation_block_list:
                     self.add_node(rb.id, rb.title_plaintext)
                     self.add_edge(row.id, rb.id)
@@ -64,7 +67,7 @@ class Parser:
                 self.add_node(child_block.id, child_block.title_plaintext)
                 self.add_edge(parent_block.id, child_block.id)
                 self.parse_page(child_block)
-            if child_block.type == 'collection_view':
+            if child_block.type == 'collection_view' or child_block.type == 'collection_view_page':
                 collection = child_block.collection
                 self.add_node(collection.id, collection.name)
                 self.add_edge(parent_block.id, child_block.id)
@@ -80,4 +83,3 @@ class Parser:
     def parse_page(self, page):
         self.parse_backlinks(page)
         self.parse_children(page)
-
