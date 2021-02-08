@@ -1,25 +1,23 @@
+import os
 from notion.client import NotionClient
 
 from config import *
+from parser import Parser
 from render import render
-from parser import CollectionParser, PageParser
 
 
 def read_page(token_v2, page_url):
     client = NotionClient(token_v2=token_v2)
     base_block = client.get_block(page_url)
-    print("Page title is:", base_block.title)
+    print("Root Page:", base_block.title)
     bfs_block(base_block)
+    print("Graph view generated")
+    os.system("open graph_view.html")
 
 
 def bfs_block(block):
     print(block.type, block.title)
-    if block.type == "collection_view_page":
-        collection = block.collection
-        parser = CollectionParser(collection)
-    else:
-        parser = PageParser(block)
-
+    parser = Parser(block)
     graph = parser.get_graph()
     render(block.title, graph)
 

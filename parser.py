@@ -1,16 +1,19 @@
 
-class BaseParser:
-    def __init__(self, page):
+class Parser:
+    def __init__(self, block):
         self.props = []
         self.relation_props = []
         self.node_set = set()
         self.edge_set = []
         self.nodes = []
         self.edges = []
-        self.parse(page)
-
-    def parse(self, page):
-        pass
+        if block.type == "collection_view_page":
+            collection = block.collection
+            self.add_node(collection.id, collection.name)
+            self.parse_collection(collection)
+        else:
+            self.add_node(block.id, block.title_plaintext)
+            self.parse_page(block)
 
     def add_node(self, node_id, node_title):
         if node_id in self.node_set:
@@ -28,18 +31,41 @@ class BaseParser:
         graph = dict(nodes=self.nodes, edges=self.edges)
         return graph
 
+    def parse_backlinks(self, page):
+        backlinks = page.get_backlinks()
+        if backlinks:
+            for block in backlinks:
+                linked_block = block.parent
+                self.add_node(linked_block.id, linked_block.title_plaintext)
+                self.add_edge(page.id, linked_block.id)
 
-class CollectionParser(BaseParser):
-    def parse(self, collection):
+    def parse_collection(self, collection):
         row_blocks = collection.get_rows()
         self.get_row_props(row_blocks)
         for row in row_blocks:
-            self.add_node(row.id, row.title)
+            self.add_node(row.id, row.title_plaintext)
+            self.add_edge(collection.id, row.id)
+            # parse properties
             for relation_prop in self.relation_props:
                 relation_block_list = row.get_property(relation_prop)
                 for rb in relation_block_list:
-                    self.add_node(rb.id, rb.title)
+                    self.add_node(rb.id, rb.title_plaintext)
                     self.add_edge(row.id, rb.id)
+            # parse children & backlinks block
+            self.parse_backlinks(row)
+            self.parse_children(row)
+
+    def parse_children(self, parent_block):
+        for child_block in parent_block.children:
+            if child_block.type == 'page':
+                self.add_node(child_block.id, child_block.title_plaintext)
+                self.add_edge(parent_block.id, child_block.id)
+                self.parse_page(child_block)
+            if child_block.type == 'collection_view':
+                collection = child_block.collection
+                self.add_node(collection.id, collection.name)
+                self.add_edge(parent_block.id, child_block.id)
+                self.parse_collection(collection)
 
     def get_row_props(self, row_blocks):
         first_block = row_blocks[0]
@@ -48,7 +74,7 @@ class CollectionParser(BaseParser):
             if schema['type'] == 'relation':
                 self.relation_props.append(schema['slug'])
 
+    def parse_page(self, page):
+        self.parse_backlinks(page)
+        self.parse_children(page)
 
-class PageParser(BaseParser):
-    def parse(self, page):
-        pass

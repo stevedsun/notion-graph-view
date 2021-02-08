@@ -27,7 +27,18 @@ template = '''
         edges: edges
     };
     var options = {
-        layout: { randomSeed: 2},
+        edges: { 
+            width: 0.5,
+            smooth: {
+              enabled: false,
+            },
+            color: {
+              color:'#696969',
+              highlight:'#848484',
+              hover: '#848484',
+              opacity:0.6
+            }
+        },
         nodes: {
             shape: "dot",
             size: 5, 
