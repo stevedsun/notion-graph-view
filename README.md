@@ -3,7 +3,7 @@
 
 Export Notion pages to a Roam Research like graph view.
 
-![](https://tva1.sinaimg.cn/large/008eGmZEly1gng2xuwjutj30u10u0tjo.jpg)
+![](https://tva1.sinaimg.cn/large/008eGmZEly1gnhdionmecj30yf0u0115.jpg)
 
 ## How to use it
 
