@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style type="text/css">
+    #container {
+      width: 1600px;
+      height: 900px;
+      border: 1px solid lightgray;
+    }
+
+  </style>
+  <title>{{title}}</title>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="libs/vis-network.min.js"></script>
+<script>
+    var nodes = new vis.DataSet({{nodes}});
+    var edges = new vis.DataSet({{edges}});
+</script>
+<script type="text/javascript" src="libs/graph.js"></script>
+</body>
+</html>
