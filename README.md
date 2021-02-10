@@ -1,7 +1,7 @@
 # Notion Graph View
 ![](https://img.shields.io/github/pipenv/locked/python-version/stevedsun/notion-graph-view)
 
-Export Notion pages to a Roam Research like graph view.
+Export [Notion](https://notion.so) pages to a Roam Research like graph view.
 
 ![](https://tva1.sinaimg.cn/large/008eGmZEly1gnhdionmecj30yf0u0115.jpg)
 
@@ -30,5 +30,4 @@ Finally `graph_view.html` will be generated at the current path, open it with an
 ## Todo
 
 - [x] Read Notion pages, export to graph view image
-- [ ] Generate js snippet which can be embedded to Notion
-- [ ] Deploy as a SasS
+- [ ] Embedded into [Notion Enhancer](https://github.com/notion-enhancer/notion-enhancer)
