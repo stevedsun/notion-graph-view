@@ -10,7 +10,7 @@ Export [Notion](https://notion.so) pages to a Roam Research like graph view.
 Install dependencies with `pipenv` or `pip`:
 
 ```shell
-pip install
+pip install ./requirements.txt
 # or
 pipenv install
 ```
