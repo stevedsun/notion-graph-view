@@ -8,19 +8,19 @@ Export [Notion](https://notion.so) pages to a Roam Research like graph view.
 
 ## How to use it
 
-Install dependencies with `pipenv` or `pip`:
+**Setup Python 3.9 dependencies**
 
 ```shell
 pip install -r requirements.txt
-# or
-pipenv install
 ```
+
+**Setup Notion token**
 
 Login notion.so and get `token_v2` from browser ([How?](https://www.redgregory.com/notion/2020/6/15/9zuzav95gwzwewdu1dspweqbv481s5)). Paste it to `config.py`>`my_token_v2`.
 
 Paste the page url which your want to analyse into `config.py`>`my_url`.
 
-Then run:
+**Run it**
 
 ```shell
 python main.py
@@ -28,9 +28,9 @@ python main.py
 
 Finally `graph_view.html` will be generated at the current path, open it with any browser.
 
-## Todo
+## Changelog
 
 - [x] Read Notion pages, export to graph view image
-- [ ] Upgrade python version
-- [ ] Replace notion-client by notion-sdk-py
+- [x] Upgrade python version
+- [x] Replace notion-client by notion-sdk-py
 - [ ] Use lightweight renderer solution

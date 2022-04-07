@@ -1,13 +1,12 @@
 import os
-from notion.client import NotionClient
-
-from config import *
+from notion_client import Client
 from parser import Parser
 from render import render
+from config import *
 
 
 def read_page(token_v2, page_url):
-    client = NotionClient(token_v2=token_v2)
+    client = Client(auth=token_v2)
     base_block = client.get_block(page_url)
     print("Root Page:", base_block.title)
     bfs_block(base_block)
