@@ -28,9 +28,10 @@ python main.py
 
 Finally `graph_view.html` will be generated at the current path, open it with any browser.
 
-## Changelog
+## Features
 
 - [x] Read Notion pages, export to graph view image
 - [x] Upgrade python version
 - [x] Replace notion-client by notion-sdk-py
+- [ ] Use OAuth2.0 to grant notion page
 - [ ] Use lightweight renderer solution
