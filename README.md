@@ -1,37 +1,64 @@
+![](images/snap.png)
+
 # Notion Graph View
 
 ![](https://img.shields.io/github/pipenv/locked/python-version/stevedsun/notion-graph-view)
 
-Export [Notion](https://notion.so) pages to a Roam Research like graph view.
+Export [Notion](https://notion.so) pages to a Roam-Research like graph view.
 
-![](https://tva1.sinaimg.cn/large/008eGmZEly1gnhdionmecj30yf0u0115.jpg)
+## Usage
 
-## How to use it
+### Environment
 
-**Setup Python 3.9 dependencies**
+- Python 3.7 or later (3.9 is recommended)
+
+### Install
 
 ```shell
 pip install -r requirements.txt
 ```
 
-**Setup Notion token**
+### Setup Notion API
 
-Login notion.so and get `token_v2` from browser ([How?](https://www.redgregory.com/notion/2020/6/15/9zuzav95gwzwewdu1dspweqbv481s5)). Paste it to `config.py`>`my_token_v2`.
+1. Create a [notion internal integration](https://www.notion.so/my-integrations) and generate an `Internal Integration Token`. [Learn more about authorization](https://developers.notion.com/docs/authorization)
+2. Open one notion page on browser and share it to your integration.
+3. Find your base `Page ID` from browser url, for example:
+   > if this page url is like: https://www.notion.so/yourName/PageTitle-8a4b5ff100d648fb8d39d4bfa756ff3f
+   > the `8a4b5ff100da48fb8d39d4bfa756ff3f` is the `Page ID`
+4. Paste `Internal Integration Token` and `Page ID` to `config.py`:
 
-Paste the page url which your want to analyse into `config.py`>`my_url`.
+```python
+NOTION_TOKEN = "secret_TBqfsxyH1slTpaignyZqQnDAAAn0MaeDEc2l96cdubD"
+PAGE_ID = "8a4b5ff100d648fb8d39d4bfa756ff3f"
+```
 
-**Run it**
+> On Linux, you can export these two environment varibles instead.
+
+## Run
 
 ```shell
 python main.py
 ```
 
-Finally `graph_view.html` will be generated at the current path, open it with any browser.
+Finally `graph_view.html` would be generated at the project path, open it with any browser. (make sure `/lib` and `graph_view.html` in the same folder)
 
-## Features
+## Block link support
 
-- [x] Read Notion pages, export to graph view image
-- [x] Upgrade python version
-- [x] Replace notion-client by notion-sdk-py
-- [ ] Use OAuth2.0 to grant notion page
-- [ ] Use lightweight renderer solution
+|                    | database | page |
+| ------------------ | -------- | ---- |
+| paragraph          | ✔️       | ✔️   |
+| bulleted_list_item | ✔️       | ✔️   |
+| numbered_list_item | ✔️       | ✔️   |
+| to_do              | ✔️       | ✔️   |
+| toggle             | ✔️       | ✔️   |
+| child_page         | ✔️       | ✔️   |
+| child_database     | ✔️       | ✔️   |
+| embed              |          |      |
+| callout            |          |      |
+| quote              |          |      |
+| column             |          |      |
+| column_list        |          |      |
+| synced_block       |          |      |
+| link_to_page       |          |      |
+| table              | ✔️       | ✔️   |
+| table_row          |          |      |
