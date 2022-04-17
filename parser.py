@@ -1,85 +1,235 @@
-class Parser:
-    def __init__(self, block):
-        self.props = []
-        self.relation_props = []
-        self.node_set = set()
-        self.edge_set = []
-        self.nodes = []
-        self.edges = []
-        if block.type == "collection_view_page":
-            collection = block.collection
-            self.add_node(collection.id, collection.name)
-            self.parse_collection(collection)
+from graph import my_graph
+from config import notion
+
+
+class TitleParser:
+    def __init__(self, obj: dict):
+        self.title_objs = obj
+
+    @property
+    def title(self) -> str:
+        title = ''
+        for obj in self.title_objs:
+            title += obj['plain_text']
+        return title
+
+    @property
+    def mentioned_blocks(self) -> list:
+        blocks = []
+        for obj in self.title_objs:
+            if obj['type'] == 'mention' and obj['mention']['type'] == 'page':
+                blocks.append(obj['mention']['page'])
+            if obj['type'] == 'mention' and obj['mention']['type'] == 'database':
+                blocks.append(obj['mention']['database'])
+        return blocks
+
+
+class RichTextParser:
+    def __init__(self, obj: dict):
+        self.rich_text_objs = obj
+
+    @property
+    def mentioned_blocks(self) -> list:
+        blocks = []
+        for obj in self.rich_text_objs:
+            if obj['type'] == 'mention' and obj['mention']['type'] == 'page':
+                blocks.append(obj['mention']['page'])
+            if obj['type'] == 'mention' and obj['mention']['type'] == 'database':
+                blocks.append(obj['mention']['database'])
+        return blocks
+
+
+# Todo(steve): Notion API return relation value is [] (empty?)
+class RelationParser:
+    def __init__(self, obj: dict):
+        self.relation_objs = obj
+
+    @property
+    def mentioned_blocks(self) -> list:
+        return []
+
+
+class BlockParser:
+    def __init__(self, obj: dict, parent_id=None):
+        print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
+        self.linked_blocks = []
+        self.children_ids = set()
+        self.title = "<block>"
+        self.id = obj['id']
+        self.obj = obj
+        self.has_children = self.obj.get('has_children', False)
+        self.parent_id = parent_id
+        self.parse_self()
+        self.parse_children()
+        self.parse_relations()
+        self.add_to_graph()
+
+    def add_to_graph(self):
+        my_graph.add_node(self)
+
+    def add_linked_block(self, block):
+        if block and type(block) == dict:
+            self.linked_blocks.append(block)
+        if block and type(block) == list:
+            self.linked_blocks.extend(block)
+
+    def add_children_id(self, id):
+        if not id:
+            return
+        if type(id) == list:
+            self.children_ids.update(id)
         else:
-            self.add_node(block.id, block.title_plaintext)
-            self.parse_page(block)
+            self.children_ids.add(id)
 
-    def add_node(self, node_id, node_title):
-        if node_id in self.node_set:
-            return
-        self.node_set.add(node_id)
-        self.nodes.append(dict(id=node_id, label=node_title, size=3))
+    def parse_self(self):
+        if self.obj.get('object', None) and self.obj['object'] == 'page':
+            obj = notion.pages.retrieve(self.id)
+            PageParser(obj)
+        if self.obj.get('object', None) and self.obj['object'] == 'database':
+            obj = notion.databases.retrieve(self.id)
+            DatabaseParser(obj)
+        if self.obj.get('object', None) and self.obj['object'] == 'block':
+            if self.obj['type'] == 'child_page':
+                obj = notion.pages.retrieve(self.id)
+                ChildPageParser(obj)
+            if self.obj['type'] == 'child_database':
+                obj = notion.databases.retrieve(self.id)
+                ChildDatabaseParser(obj)
+            if self.obj['type'] in ['paragraph', 'bulleted_list_item', 'numbered_list_item', 'to_do', 'toggle', 'callout', 'quote']:
+                CommonTextParser(self.obj, self.parent_id)
+            if self.obj['type'] == 'link_to_page':
+                # Todo(steve): API return unsupport type
+                pass
+            if self.obj['type'] == 'table':
+                TableParser(self.obj, self.parent_id)
+            if self.obj['type'] == 'table_row':
+                pass
 
-    def add_edge(self, source_id, target_id):
-        if {source_id, target_id} in self.edge_set:
-            return
-        self.edge_set.append({source_id, target_id})
-        self.edges.append(dict({"from": source_id, "to": target_id}))
+    def parse_children(self, parent_id=None):
+        if self.has_children:
+            children = notion.blocks.children.list(self.id)['results']
+            for block in children:
+                if block['type'] in ['child_page', 'child_database']:
+                    self.add_children_id(block['id'])
+                BlockParser(block, parent_id if parent_id else self.id)
 
-    def get_graph(self):
-        graph = dict(nodes=self.nodes, edges=self.edges)
-        return graph
+    def parse_relations(self, parent_id=None):
+        for block in self.linked_blocks:
+            BlockParser(block, parent_id if parent_id else self.id)
 
-    def parse_backlinks(self, page):
-        backlinks = page.get_backlinks()
-        if backlinks:
-            for block in backlinks:
-                if block.type == 'page' or block.type == 'collection_view_page':
-                    linked_block = block
-                else:
-                    linked_block = block.parent
-                self.add_node(linked_block.id, linked_block.title_plaintext)
-                self.add_edge(linked_block.id, page.id)
 
-    def parse_collection(self, collection):
-        row_blocks = collection.get_rows()
-        self.get_row_props(row_blocks)
-        for row in row_blocks:
-            self.add_node(row.id, row.title_plaintext)
-            self.add_edge(collection.id, row.id)
-            # parse properties
-            for relation_prop in self.relation_props:
-                try:
-                    relation_block_list = row.get_property(relation_prop)
-                except AttributeError:
-                    continue
+class PageParser(BlockParser):
 
-                for rb in relation_block_list:
-                    self.add_node(rb.id, rb.title_plaintext)
-                    self.add_edge(row.id, rb.id)
-            # parse children & backlinks block
-            self.parse_backlinks(row)
-            self.parse_children(row)
+    def parse_self(self):
+        self.parse_properties()
 
-    def parse_children(self, parent_block):
-        for child_block in parent_block.children:
-            if child_block.type == 'page':
-                self.add_node(child_block.id, child_block.title_plaintext)
-                self.add_edge(parent_block.id, child_block.id)
-                self.parse_page(child_block)
-            if child_block.type == 'collection_view' or child_block.type == 'collection_view_page':
-                collection = child_block.collection
-                self.add_node(collection.id, collection.name)
-                self.add_edge(parent_block.id, child_block.id)
-                self.parse_collection(collection)
+    def parse_properties(self):
+        properties = self.obj['properties']
+        for v in properties.values():
+            if v['type'] == 'title':
+                title_parser = TitleParser(v['title'])
+                self.title = title_parser.title
+                self.add_linked_block(title_parser.mentioned_blocks)
+            if v['type'] == 'rich_text':
+                rich_text_parser = RichTextParser(v['rich_text'])
+                self.add_linked_block(rich_text_parser.mentioned_blocks)
+            if v['type'] == 'relation':
+                relation_parser = RelationParser(v['relation'])
+                self.add_linked_block(relation_parser.mentioned_blocks)
 
-    def get_row_props(self, row_blocks):
-        first_block = row_blocks[0]
-        for schema in first_block.schema:
-            self.props.append(schema['slug'])
-            if schema['type'] == 'relation':
-                self.relation_props.append(schema['slug'])
 
-    def parse_page(self, page):
-        self.parse_backlinks(page)
-        self.parse_children(page)
+class ChildPageParser(PageParser):
+    pass
+
+
+class DatabaseParser(BlockParser):
+    def parse_self(self):
+        self.parse_title()
+
+    def parse_title(self):
+        title_parser = TitleParser(self.obj['title'])
+        self.title = title_parser.title
+        self.add_linked_block(title_parser.mentioned_blocks)
+
+    def parse_children(self):
+        has_more = True
+        next_cursor = None
+        while has_more:
+            data = notion.databases.query(
+                self.id, page_size=10, start_cursor=next_cursor)
+            pages = data['results']
+            has_more = data['has_more']
+            next_cursor = data['next_cursor']
+            for page in pages:
+                self.add_children_id(page['id'])
+                BlockParser(page)
+
+
+class ChildDatabaseParser(DatabaseParser):
+    pass
+
+
+class CommonTextParser(BlockParser):
+    def __init__(self, obj: dict, parent_id: str):
+        print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
+        self.linked_blocks = set()
+        self.children_ids = set()
+        self.id = obj['id']
+        self.type = obj['type']
+        self.title = '<' + self.type + '>'
+        self.obj_dict = obj[self.type]
+        self.obj = None
+        self.has_children = obj['has_children']
+        self.parent_id = parent_id
+        self.parse_self()
+        self.parse_children(self.parent_id)
+        self.parse_relations(self.parent_id)
+        self.add_to_graph()
+
+    def parse_self(self):
+        for k, v in self.obj_dict.items():
+            if k == 'rich_text':
+                rich_text_parser = RichTextParser(v)
+                self.add_linked_block(rich_text_parser.mentioned_blocks)
+
+
+class TableParser(BlockParser):
+    def __init__(self, obj: dict, parent_id: str):
+        print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
+        self.linked_blocks = set()
+        self.children_ids = set()
+        self.obj = None
+        self.id = obj['id']
+        self.type = obj['type']
+        self.title = '<' + self.type + '>'
+        self.has_children = obj['has_children']
+        self.parent_id = parent_id
+        self.parse_children(self.parent_id)
+        self.parse_relations(self.parent_id)
+        self.add_to_graph()
+
+
+class TableRowParser(BlockParser):
+    def __init__(self, obj: dict, parent_id: str):
+        print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
+        self.linked_blocks = set()
+        self.children_ids = set()
+        self.id = obj['id']
+        self.type = obj['type']
+        self.title = '<' + self.type + '>'
+        self.cells = obj[self.type]['cells']
+        self.obj = None
+        self.has_children = obj['has_children']
+        self.parent_id = parent_id
+        self.parse_self()
+        self.parse_children(self.parent_id)
+        self.parse_relations(self.parent_id)
+        self.add_to_graph()
+
+    def parse_self(self):
+        for cell in self.cells:
+            for obj in cell:
+                if obj['type'] == 'mention' and obj['mention']['type'] == 'page':
+                    self.add_linked_block(obj['mention']['page'])
+                if obj['type'] == 'mention' and obj['mention']['type'] == 'database':
+                    self.add_linked_block(obj['mention']['database'])

@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 .idea/
 graph_view.html
+run_local.sh
+.vscode
