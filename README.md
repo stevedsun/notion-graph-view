@@ -2,7 +2,7 @@
 
 # Notion Graph View
 
-![](https://img.shields.io/github/pipenv/locked/python-version/stevedsun/notion-graph-view)
+![github](https://img.shields.io/badge/python-3.9-blue.svg) ![github](https://img.shields.io/badge/license-MIT-green.svg) ![github](https://img.shields.io/badge/notion_api_ver.-2022.02.22-lightgrey.svg)
 
 Export [Notion](https://notion.so) pages to a Roam-Research like graph view.
 
