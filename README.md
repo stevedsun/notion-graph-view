@@ -24,8 +24,9 @@ pip install -r requirements.txt
    👉 [Learn more about authorization](https://developers.notion.com/docs/authorization)
 2. Open one notion page on browser and share it to your integration.
 3. Find your base `Page ID` from browser url, for example:
-   > if this page url is like: https://www.notion.so/yourName/PageTitle-8a4b5ff100d648fb8d39d4bfa756ff3f
-   > the `8a4b5ff100da48fb8d39d4bfa756ff3f` is the `Page ID`
+
+> if page url is: https://www.notion.so/yourName/PageTitle-8a4b5ff100d648fb8d39d4bfa756ff3f, `8a4b5ff100da48fb8d39d4bfa756ff3f` is the `Page ID`
+
 4. Paste `Internal Integration Token` and `Page ID` to `config.py`:
 
 ```python
@@ -41,7 +42,7 @@ PAGE_ID = "8a4b5ff100d648fb8d39d4bfa756ff3f"
 python main.py
 ```
 
-Finally `graph_view.html` would be generated at the project path, open it with any browser. (make sure `/lib` and `graph_view.html` in the same folder)
+`graph_view.html` would be generated at the project path, open it with any browser. (`/lib` and `graph_view.html` should be in the same folder)
 
 ## 🔗 Link support
 
