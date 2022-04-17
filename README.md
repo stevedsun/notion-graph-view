@@ -10,7 +10,7 @@ Export [Notion](https://notion.so) pages to a Roam-Research like graph view.
 
 ### Environment
 
-- Python 3.7 or later (3.9 is recommended)
+- Python 3.7 or later ( 3.9 is recommended )
 
 ### Install
 
@@ -21,7 +21,9 @@ pip install -r requirements.txt
 ### Setup Notion API
 
 1. Create a [notion internal integration](https://www.notion.so/my-integrations) and generate an `Internal Integration Token`.
+
    👉 [Learn more about authorization](https://developers.notion.com/docs/authorization)
+
 2. Open one notion page on browser and share it to your integration.
 3. Find your base `Page ID` from browser url, for example:
 
