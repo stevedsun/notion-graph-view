@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-run_local.sh
 
 # C extensions
 *.so
@@ -130,3 +129,5 @@ dmypy.json
 .pyre/
 .idea/
 graph_view.html
+run_local.sh
+.vscode

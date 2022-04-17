@@ -12,7 +12,11 @@ class Graph:
             return
 
         self.nodes.append(dict(id=block.id, label=block.title, size=2))
-        for linked_id in block.linked_block_ids:
+        for child_id in block.children_ids:
+            self.edges.append(dict({"from": block.id, "to": child_id}))
+
+        for linked_block in block.linked_blocks:
+            linked_id = linked_block['id']
             self.edges.append(dict({"from": block.id, "to": linked_id}))
 
         self.parsed_block_ids.add(block.id)
