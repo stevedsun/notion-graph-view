@@ -50,7 +50,7 @@ class RelationParser:
 
 
 class BlockParser:
-    def __init__(self, obj: dict):
+    def __init__(self, obj: dict, parent_id=None):
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
         self.linked_blocks = []
         self.children_ids = set()
@@ -58,6 +58,7 @@ class BlockParser:
         self.id = obj['id']
         self.obj = obj
         self.has_children = False
+        self.parent_id = parent_id
         self.parse_self()
         self.parse_children()
         self.add_to_graph()
@@ -95,12 +96,12 @@ class BlockParser:
                 obj = notion.databases.retrieve(self.id)
                 ChildDatabaseParser(obj)
             if self.obj['type'] in ['paragraph', 'bulleted_list_item', 'numbered_list_item', 'to_do', 'toggle', 'callout', 'quote']:
-                CommonTextParser(self.obj)
+                CommonTextParser(self.obj, self.parent_id)
             if self.obj['type'] == 'link_to_page':
                 # Todo(steve): API return unsupport type
                 pass
             if self.obj['type'] == 'table':
-                TableParser(self.obj)
+                TableParser(self.obj, self.parent_id)
             if self.obj['type'] == 'table_row':
                 pass
 
@@ -109,11 +110,11 @@ class BlockParser:
             children = notion.blocks.children.list(self.id)['results']
             for block in children:
                 self.add_children_id(block['id'])
-                BlockParser(block)
+                BlockParser(block, self.parent_id)
 
     def parse_relations(self):
         for block in self.linked_blocks:
-            BlockParser(block)
+            BlockParser(block, self.parent_id)
 
 
 class PageParser(BlockParser):
@@ -168,7 +169,7 @@ class ChildDatabaseParser(DatabaseParser):
 
 
 class CommonTextParser(BlockParser):
-    def __init__(self, obj: dict):
+    def __init__(self, obj: dict, parent_id: str):
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
         self.linked_blocks = set()
         self.children_ids = set()
@@ -178,10 +179,11 @@ class CommonTextParser(BlockParser):
         self.obj_dict = obj[self.type]
         self.obj = None
         self.has_children = obj['has_children']
+        self.parent_id = parent_id
         self.parse_self()
+        self.parse_children()
         self.add_to_graph()
         self.parse_relations()
-        self.parse_children()
 
     def parse_self(self):
         for k, v in self.obj_dict.items():
@@ -191,7 +193,7 @@ class CommonTextParser(BlockParser):
 
 
 class TableParser(BlockParser):
-    def __init__(self, obj: dict):
+    def __init__(self, obj: dict, parent_id: str):
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
         self.linked_blocks = set()
         self.children_ids = set()
@@ -200,13 +202,14 @@ class TableParser(BlockParser):
         self.type = obj['type']
         self.title = '<' + self.type + '>'
         self.has_children = obj['has_children']
-        self.add_to_graph()
+        self.parent_id = parent_id
         self.parse_children()
+        self.add_to_graph()
         self.parse_relations()
 
 
 class TableRowParser(BlockParser):
-    def __init__(self, obj: dict):
+    def __init__(self, obj: dict, parent_id: str):
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
         self.linked_blocks = set()
         self.children_ids = set()
@@ -216,9 +219,10 @@ class TableRowParser(BlockParser):
         self.cells = obj[self.type]['cells']
         self.obj = None
         self.has_children = obj['has_children']
+        self.parent_id = parent_id
         self.parse_self()
-        self.add_to_graph()
         self.parse_children()
+        self.add_to_graph()
         self.parse_relations()
 
     def parse_self(self):
