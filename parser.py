@@ -161,7 +161,7 @@ class DatabaseParser(BlockParser):
             next_cursor = data['next_cursor']
             for page in pages:
                 self.add_children_id(page['id'])
-                BlockParser(page)
+                BlockParser(page, self.parent_id)
 
 
 class ChildDatabaseParser(DatabaseParser):
