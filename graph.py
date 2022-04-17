@@ -5,7 +5,7 @@ class Graph:
         self.parsed_block_ids = set()
 
     def has_node_parsed(self, block):
-        return block.id in self.parsed_block_ids
+        return block.id in self.parsed_block_ids and block.title != '<block>'
 
     def add_node(self, block):
         if self.has_node_parsed(block):
@@ -18,8 +18,9 @@ class Graph:
         else:
             # for page and database block
             page_block_id = block.id
-            self.nodes.append(
-                dict(id=page_block_id, label=block.title, size=2))
+            if block.title != '<block>':
+                self.nodes.append(
+                    dict(id=page_block_id, label=block.title, size=2))
 
         for child_id in block.children_ids:
             self.edges.append(dict({"from": page_block_id, "to": child_id}))
