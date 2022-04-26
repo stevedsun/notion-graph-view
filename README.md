@@ -62,8 +62,8 @@ python main.py
 | child_page         | ✔️       | ✔️   |
 | child_database     | ✔️       | ✔️   |
 | embed              |          |      |
-| callout            |          |      |
-| quote              |          |      |
+| callout            | ✔️       |  ✔️  |
+| quote              | ✔️       |  ✔️  |
 | column             |          |      |
 | column_list        |          |      |
 | synced_block       |          |      |
