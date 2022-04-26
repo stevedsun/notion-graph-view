@@ -29,14 +29,18 @@ pip install -r requirements.txt
 
 > if page url is: https://www.notion.so/yourName/PageTitle-8a4b5ff100d648fb8d39d4bfa756ff3f, `8a4b5ff100da48fb8d39d4bfa756ff3f` is the `Page ID`
 
-4. Paste `Internal Integration Token` and `Page ID` to `config.py`:
+4. Provide your credentials by either
+   - Creating `credentials.py` and pasting `Internal Integration Token` and `Page ID` in it like so:
+      ```python
+      NOTION_TOKEN = "secret_TBqfsxyH1slTpaignyZqQnDAAAn0MaeDEc2l96cdubD"
+      PAGE_ID = "8a4b5ff100d648fb8d39d4bfa756ff3f"
+      ```
+   - Exporting `Internal Integration Token` and `Page ID` to environment variables:
+      ```shell   
+      export NOTION_TOKEN="secret_TBqfsxyH1slTpaignyZqQnDAAAn0MaeDEc2l96cdubD"
+      export PAGE_ID="8a4b5ff100d648fb8d39d4bfa756ff3f"
+      ```
 
-```python
-NOTION_TOKEN = "secret_TBqfsxyH1slTpaignyZqQnDAAAn0MaeDEc2l96cdubD"
-PAGE_ID = "8a4b5ff100d648fb8d39d4bfa756ff3f"
-```
-
-> On Linux, you can export these two environment varibles instead.
 
 ### Run
 
