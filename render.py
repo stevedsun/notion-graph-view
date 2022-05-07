@@ -1,7 +1,7 @@
 from jinja2 import Template
 
 
-def render(graph):
+def render(graph: dict) -> None:
     with open("libs/template.html") as f:
         template = f.read()
         t = Template(template)

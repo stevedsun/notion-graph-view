@@ -2,7 +2,6 @@ import os
 from notion_client import Client
 
 
-
 try:
     from credentials import NOTION_TOKEN, PAGE_ID
 except ImportError:
@@ -18,6 +17,6 @@ if not (NOTION_TOKEN and PAGE_ID):
     raise RuntimeError(
         "You must provide your credentials in 'credentials.py' or as ENV variables. "
         "For the details, see https://github.com/stevedsun/notion-graph-view#setup-notion-api"
-        )
+    )
 
 notion = Client(auth=NOTION_TOKEN)

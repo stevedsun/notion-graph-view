@@ -1,9 +1,9 @@
-from graph import my_graph
+from typing import Any
 from config import notion
 
 
 class TitleParser:
-    def __init__(self, obj: dict):
+    def __init__(self, obj: dict) -> None:
         self.title_objs = obj
 
     @property
@@ -25,7 +25,7 @@ class TitleParser:
 
 
 class RichTextParser:
-    def __init__(self, obj: dict):
+    def __init__(self, obj: dict) -> None:
         self.rich_text_objs = obj
 
     @property
@@ -50,7 +50,7 @@ class RelationParser:
 
 
 class BlockParser:
-    def __init__(self, obj: dict, parent_id=None):
+    def __init__(self, obj: dict, parent_id: str = None) -> None:
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
         self.linked_blocks = []
         self.children_ids = set()
@@ -67,13 +67,13 @@ class BlockParser:
     def add_to_graph(self):
         my_graph.add_node(self)
 
-    def add_linked_block(self, block):
+    def add_linked_block(self, block: Any) -> None:
         if block and type(block) == dict:
             self.linked_blocks.append(block)
         if block and type(block) == list:
             self.linked_blocks.extend(block)
 
-    def add_children_id(self, id):
+    def add_children_id(self, id: Any) -> None:
         if not id:
             return
         if type(id) == list:
@@ -81,7 +81,7 @@ class BlockParser:
         else:
             self.children_ids.add(id)
 
-    def parse_self(self):
+    def parse_self(self) -> None:
         if self.obj.get('object', None) and self.obj['object'] == 'page':
             obj = notion.pages.retrieve(self.id)
             PageParser(obj)
@@ -105,7 +105,7 @@ class BlockParser:
             if self.obj['type'] == 'table_row':
                 pass
 
-    def parse_children(self, parent_id=None):
+    def parse_children(self, parent_id: str = None) -> None:
         if self.has_children:
             children = notion.blocks.children.list(self.id)['results']
             for block in children:
@@ -113,17 +113,17 @@ class BlockParser:
                     self.add_children_id(block['id'])
                 BlockParser(block, parent_id if parent_id else self.id)
 
-    def parse_relations(self, parent_id=None):
+    def parse_relations(self, parent_id: str = None) -> None:
         for block in self.linked_blocks:
             BlockParser(block, parent_id if parent_id else self.id)
 
 
 class PageParser(BlockParser):
 
-    def parse_self(self):
+    def parse_self(self) -> None:
         self.parse_properties()
 
-    def parse_properties(self):
+    def parse_properties(self) -> None:
         properties = self.obj['properties']
         for v in properties.values():
             if v['type'] == 'title':
@@ -143,15 +143,15 @@ class ChildPageParser(PageParser):
 
 
 class DatabaseParser(BlockParser):
-    def parse_self(self):
+    def parse_self(self) -> None:
         self.parse_title()
 
-    def parse_title(self):
+    def parse_title(self) -> None:
         title_parser = TitleParser(self.obj['title'])
         self.title = title_parser.title
         self.add_linked_block(title_parser.mentioned_blocks)
 
-    def parse_children(self):
+    def parse_children(self) -> None:
         has_more = True
         next_cursor = None
         while has_more:
@@ -170,7 +170,7 @@ class ChildDatabaseParser(DatabaseParser):
 
 
 class CommonTextParser(BlockParser):
-    def __init__(self, obj: dict, parent_id: str):
+    def __init__(self, obj: dict, parent_id: str) -> None:
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
         self.linked_blocks = set()
         self.children_ids = set()
@@ -186,7 +186,7 @@ class CommonTextParser(BlockParser):
         self.parse_relations(self.parent_id)
         self.add_to_graph()
 
-    def parse_self(self):
+    def parse_self(self) -> None:
         for k, v in self.obj_dict.items():
             if k == 'rich_text':
                 rich_text_parser = RichTextParser(v)
@@ -194,7 +194,7 @@ class CommonTextParser(BlockParser):
 
 
 class TableParser(BlockParser):
-    def __init__(self, obj: dict, parent_id: str):
+    def __init__(self, obj: dict, parent_id: str) -> None:
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
         self.linked_blocks = set()
         self.children_ids = set()
@@ -210,7 +210,7 @@ class TableParser(BlockParser):
 
 
 class TableRowParser(BlockParser):
-    def __init__(self, obj: dict, parent_id: str):
+    def __init__(self, obj: dict, parent_id: str) -> None:
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
         self.linked_blocks = set()
         self.children_ids = set()
@@ -226,10 +226,50 @@ class TableRowParser(BlockParser):
         self.parse_relations(self.parent_id)
         self.add_to_graph()
 
-    def parse_self(self):
+    def parse_self(self) -> None:
         for cell in self.cells:
             for obj in cell:
                 if obj['type'] == 'mention' and obj['mention']['type'] == 'page':
                     self.add_linked_block(obj['mention']['page'])
                 if obj['type'] == 'mention' and obj['mention']['type'] == 'database':
                     self.add_linked_block(obj['mention']['database'])
+
+
+class Graph:
+    def __init__(self) -> None:
+        self.nodes = []
+        self.edges = []
+        self.parsed_block_ids = set()
+
+    def has_node_parsed(self, block: BlockParser) -> bool:
+        return block.id in self.parsed_block_ids and block.title != '<block>'
+
+    def add_node(self, block: BlockParser) -> None:
+        if self.has_node_parsed(block):
+            return
+
+        page_block_id = ''
+        if block.parent_id:
+            # for text block
+            page_block_id = block.parent_id
+        else:
+            # for page and database block
+            page_block_id = block.id
+            if block.title != '<block>':
+                self.nodes.append(
+                    dict(id=page_block_id, label=block.title, size=2))
+
+        for child_id in block.children_ids:
+            self.edges.append(dict({"from": page_block_id, "to": child_id}))
+
+        for linked_block in block.linked_blocks:
+            linked_id = linked_block['id']
+            self.edges.append(dict({"from": page_block_id, "to": linked_id}))
+
+        self.parsed_block_ids.add(block.id)
+
+    def get_graph(self) -> dict[str, list]:
+        return dict(nodes=self.nodes, edges=self.edges)
+
+
+my_graph = Graph()
