@@ -1,6 +1,6 @@
 from typing import Any
 from config import notion
-
+from relation_logger import relationLogger
 
 class TitleParser:
     def __init__(self, obj: dict) -> None:
@@ -39,14 +39,21 @@ class RichTextParser:
         return blocks
 
 
-# Todo(steve): Notion API return relation value is [] (empty?)
 class RelationParser:
-    def __init__(self, obj: dict):
+    def __init__(self, obj: dict, parent_id):
         self.relation_objs = obj
+        self.parent_id = parent_id
 
     @property
     def mentioned_blocks(self) -> list:
-        return []
+        pages = []
+        for relation in self.relation_objs:
+            relationId = relation['id']
+            if(relationLogger.relationExists(self.parent_id, relationId) == False):
+                page = notion.pages.retrieve(relationId)
+                pages.append(page)
+                relationLogger.addRelation(self.parent_id, relationId)
+        return pages
 
 
 class BlockParser:
@@ -122,6 +129,7 @@ class PageParser(BlockParser):
 
     def parse_self(self) -> None:
         self.parse_properties()
+        
 
     def parse_properties(self) -> None:
         properties = self.obj['properties']
@@ -134,7 +142,7 @@ class PageParser(BlockParser):
                 rich_text_parser = RichTextParser(v['rich_text'])
                 self.add_linked_block(rich_text_parser.mentioned_blocks)
             if v['type'] == 'relation':
-                relation_parser = RelationParser(v['relation'])
+                relation_parser = RelationParser(v['relation'], self.id)
                 self.add_linked_block(relation_parser.mentioned_blocks)
 
 
