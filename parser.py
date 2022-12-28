@@ -25,8 +25,9 @@ class TitleParser:
 
 
 class RichTextParser:
-    def __init__(self, obj: dict) -> None:
+    def __init__(self, obj: dict, parent_id) -> None:
         self.rich_text_objs = obj
+        self.parent_id = parent_id
 
     @property
     def mentioned_blocks(self) -> list:
@@ -36,6 +37,17 @@ class RichTextParser:
                 blocks.append(obj['mention']['page'])
             if obj['type'] == 'mention' and obj['mention']['type'] == 'database':
                 blocks.append(obj['mention']['database'])
+            if obj['type'] == 'text' and obj['href'] != None:
+                relationId = obj['href'].replace('/', '')
+                if(relationLogger.relationExists(self.parent_id, relationId) == False):
+                    try:
+                        page = notion.pages.retrieve(relationId)
+                        blocks.append(page)
+                        relationLogger.addRelation(self.parent_id, relationId)
+                    except Exception:
+                        pass
+
+                    
         return blocks
 
 
@@ -64,7 +76,7 @@ class BlockParser:
         self.title = "<block>"
         self.id = obj['id']
         self.obj = obj
-        self.has_children = self.obj.get('has_children', False)
+        self.has_children = self.obj.get('has_children', True)
         self.parent_id = parent_id
         self.parse_self()
         self.parse_children()
@@ -139,7 +151,7 @@ class PageParser(BlockParser):
                 self.title = title_parser.title
                 self.add_linked_block(title_parser.mentioned_blocks)
             if v['type'] == 'rich_text':
-                rich_text_parser = RichTextParser(v['rich_text'])
+                rich_text_parser = RichTextParser(v['rich_text'], self.id)
                 self.add_linked_block(rich_text_parser.mentioned_blocks)
             if v['type'] == 'relation':
                 relation_parser = RelationParser(v['relation'], self.id)
@@ -180,8 +192,8 @@ class ChildDatabaseParser(DatabaseParser):
 class CommonTextParser(BlockParser):
     def __init__(self, obj: dict, parent_id: str) -> None:
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
-        self.linked_blocks = set()
-        self.children_ids = set()
+        self.linked_blocks = []
+        self.children_ids = []
         self.id = obj['id']
         self.type = obj['type']
         self.title = '<' + self.type + '>'
@@ -197,15 +209,15 @@ class CommonTextParser(BlockParser):
     def parse_self(self) -> None:
         for k, v in self.obj_dict.items():
             if k == 'rich_text':
-                rich_text_parser = RichTextParser(v)
+                rich_text_parser = RichTextParser(v, self.id)
                 self.add_linked_block(rich_text_parser.mentioned_blocks)
 
 
 class TableParser(BlockParser):
     def __init__(self, obj: dict, parent_id: str) -> None:
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
-        self.linked_blocks = set()
-        self.children_ids = set()
+        self.linked_blocks = []
+        self.children_ids = []
         self.obj = None
         self.id = obj['id']
         self.type = obj['type']
@@ -220,8 +232,8 @@ class TableParser(BlockParser):
 class TableRowParser(BlockParser):
     def __init__(self, obj: dict, parent_id: str) -> None:
         print("[{}] -> {}".format(self.__class__.__name__, obj['id']))
-        self.linked_blocks = set()
-        self.children_ids = set()
+        self.linked_blocks = []
+        self.children_ids = []
         self.id = obj['id']
         self.type = obj['type']
         self.title = '<' + self.type + '>'
