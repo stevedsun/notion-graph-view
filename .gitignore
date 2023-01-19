@@ -134,3 +134,7 @@ dmypy.json
 graph_view.html
 run_local.sh
 .vscode
+
+# PDM
+.pdm.toml
+__pypackages__/
