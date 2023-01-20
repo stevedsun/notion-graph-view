@@ -1,5 +1,5 @@
-from parser import BlockParser
-from parser import my_graph
+from db_to_graph_parser import BlockParser
+from db_to_graph_parser import my_graph
 from render import render
 from config import *
 
