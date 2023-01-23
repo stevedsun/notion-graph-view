@@ -1,7 +1,7 @@
 [tool.pdm]
 
 [tool.pdm.scripts]
-start = "python3 main.py"
+start = "python -m notion_graph"
 
 [project]
 name = "notion-graph"
@@ -12,7 +12,8 @@ authors = [
 ]
 dependencies = [
     "notion-client>=2.0.0",
-    "jinja2>=3.1.2",
+    "networkx>=3.0",
+    "matplotlib>=3.6.3",
 ]
 requires-python = ">=3.9"
 readme = "README.md"

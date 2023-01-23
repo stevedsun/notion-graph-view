@@ -2,7 +2,7 @@
 
 # Notion Graph View
 
-![github](https://img.shields.io/badge/python-3.9-blue.svg) ![github](https://img.shields.io/badge/license-MIT-green.svg) ![github](https://img.shields.io/badge/notion_api_ver.-2022.02.22-lightgrey.svg)
+![github](https://img.shields.io/badge/python-3.9-blue.svg) ![github](https://img.shields.io/badge/license-MIT-green.svg) ![github](https://img.shields.io/badge/notion_version-2022.06.28-lightgrey.svg)
 
 Export [Notion](https://notion.so) pages to a Roam-Research like graph view.
 
@@ -10,12 +10,12 @@ Export [Notion](https://notion.so) pages to a Roam-Research like graph view.
 
 ### Environment
 
-- Python 3.7 or later ( 3.9 is recommended )
+- Python >= 3.9
 
 ### Installing
 
 ```shell
-pip install -r requirements.txt
+pip install notion-graph
 ```
 
 ### Notion API Setup
@@ -29,33 +29,71 @@ pip install -r requirements.txt
 
 > if page url is: https://www.notion.so/yourName/PageTitle-8a4b5ff100d648fb8d39d4bfa756ff3f, `8a4b5ff100da48fb8d39d4bfa756ff3f` is the `Page ID`
 
-4. Provide your credentials by either
-   - Creating `credentials.py` and pasting `Internal Integration Token` and `Page ID` in it like so:
-     ```python
-     NOTION_TOKEN = "secret_TBqfsxyH1slTpaignyZqQnDAAAn0MaeDEc2l96cdubD"
-     PAGE_ID = "8a4b5ff100d648fb8d39d4bfa756ff3f"
-     ```
-   - Exporting `Internal Integration Token` and `Page ID` to environment variables:
-     ```shell
-     export NOTION_TOKEN="secret_TBqfsxyH1slTpaignyZqQnDAAAn0MaeDEc2l96cdubD"
-     export PAGE_ID="8a4b5ff100d648fb8d39d4bfa756ff3f"
-     ```
-
-### Running
+### Quickly Running
 
 ```shell
-python main.py
+python -m notion_graph -p <Page ID> -t <Integration Token> -o <PNG file path to export>
 ```
 
-`graph_view.html` would be generated at the project path, open it with any browser. (`/lib` and `graph_view.html` should be in the same folder)
+For instance,
 
-### Testing Environment
+```shell
+python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e -o ./graph_out.png
+```
 
-The template page is [Notion-grap-view-demo](https://sund.notion.site/Notion-graph-view-Demo-856391c93ae64bd1b7ebf699ca0cd861)
+`graph_out.png` would be generated at your specific path.
 
-You can duplicate the page to your Notion account and setup your `credentials.py` to test the program.
+### Importing as a Python Library
 
-## 🔗 Link support
+You can also import `notion_graph` as a library.
+
+For instance, drawing your own diagram by [matplotlib](https://matplotlib.org/).
+
+```python
+import notion_graph as ng
+import networkx as nx
+import matplotlib.pyplot as plt
+
+my_ng = ng.NotionGraph(bearer_token="secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e")
+graph = my_ng.parse(page_id="856391c93ae64bd1b7ebf699ca0cd861")
+# graph is a networkx.classes.graph.Graph object
+
+pos = nx.spring_layout(graph)
+labels = nx.get_node_attributes(graph, 'title')
+options = {
+    "node_size": 50,
+    "node_color": "tab:gray",
+    "font_size": 10,
+    "width": 0.5,
+    "with_labels": True,
+    "labels": labels
+}
+
+nx.draw(graph, pos, **options)
+plt.show()
+plt.savefig('./graph.png')
+```
+
+## Testing Environment
+
+The testing page is [Notion-grap-view-demo](https://sund.notion.site/Notion-graph-view-Demo-856391c93ae64bd1b7ebf699ca0cd861). You can duplicate the page to your Notion account and run the project to test if everything goes well.
+
+## Development Guide
+
+This project's dependencies are managed by [PDM](https://pdm.fming.dev/latest/).
+
+```shell
+brew install pdm
+pdm install
+```
+
+Running the project by:
+
+```shell
+pdm run start -p <page_id> -t <notion_token> -o ./graph_out.png
+```
+
+## 🔗 Supported Link
 
 |                    | database | page |
 | ------------------ | -------- | ---- |
@@ -69,9 +107,12 @@ You can duplicate the page to your Notion account and setup your `credentials.py
 | embed              |          |      |
 | callout            | ✔️       | ✔️   |
 | quote              | ✔️       | ✔️   |
+| heading_1          | ✔️       | ✔️   |
+| heading_2          | ✔️       | ✔️   |
+| heading_3          | ✔️       | ✔️   |
 | column             |          |      |
 | column_list        |          |      |
 | synced_block       |          |      |
 | link_to_page       |          |      |
 | table              | ✔️       | ✔️   |
-| table_row          |          |      |
+| table_row          | ✔️       | ✔️   |
