@@ -138,3 +138,5 @@ run_local.sh
 # PDM
 .pdm.toml
 __pypackages__/
+
+**/*.png

@@ -51,7 +51,9 @@ class Parser:
         }
 
         nx.draw(self._graph, pos, **options)
-        plt.savefig(png_path)
+        plt.figure(figsize=(18, 18))
+        plt.savefig(png_path, dpi=1000)
+        print('Graph image is generated at:', png_path)
 
     def _parse_block(self, root_id: str, obj: dict = None) -> None:
         if obj is None:
