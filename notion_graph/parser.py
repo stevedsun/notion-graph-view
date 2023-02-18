@@ -42,17 +42,21 @@ class Parser:
         pos = nx.spring_layout(self._graph)
         labels = nx.get_node_attributes(self._graph, 'title')
         options = {
-            "node_size": 50,
-            "node_color": "tab:gray",
-            "font_size": 10,
+            "node_size": 10,
+            "node_color": "black",
+            "edge_color": "tab:gray",
+            "linewidths": 0.5,
+            "font_size": 6,
+            "font_color": "black",
             "width": 0.5,
             "with_labels": True,
-            "labels": labels
+            "labels": labels,
+            "alpha": 0.7,
+            "verticalalignment": 'bottom',
         }
 
         nx.draw(self._graph, pos, **options)
-        plt.figure(figsize=(18, 18))
-        plt.savefig(png_path, dpi=1000)
+        plt.savefig(png_path, dpi=300)
         print('Graph image is generated at:', png_path)
 
     def _parse_block(self, root_id: str, obj: dict = None) -> None:
