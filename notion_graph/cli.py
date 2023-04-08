@@ -10,8 +10,6 @@ def main():
     parser.add_argument(
         '--token', '-t', help='Notion integration token', required=True)
     parser.add_argument(
-        '--serve', '-s', help='Running a web page to display graph view', required=False)
-    parser.add_argument(
         '--out', '-o', help='Image output path, e.g. `./graph_out.png`', required=False, default="./graph_out.png")
     args = parser.parse_args()
     parser = Parser(NOTION_VERSION, args.token)
