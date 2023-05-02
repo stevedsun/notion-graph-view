@@ -38,14 +38,19 @@ class Parser:
         self._parse_block(root_id)
         return self._graph
 
-    def export_to_png(self, png_path: str):
+    def export_to_png(self, png_path: str, font: str):
         pos = nx.spring_layout(self._graph)
         labels = nx.get_node_attributes(self._graph, 'title')
+        font_family = 'sans-serif'
+        if font:
+            font_family = font
+
         options = {
             "node_size": 10,
             "node_color": "black",
             "edge_color": "tab:gray",
             "linewidths": 0.5,
+            "font_family": font_family,
             "font_size": 6,
             "font_color": "black",
             "width": 0.5,

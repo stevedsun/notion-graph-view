@@ -43,6 +43,14 @@ python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n
 
 `graph_out.png` would be generated at your specific path.
 
+### Specific Font Family
+
+Matplotlib by default does not support displaying Unicode characters. To resolve this issue, specify your local font family by using `-f`:
+
+```shell
+python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e -o ./graph_out.png -f 'SimSun'
+```
+
 ### Importing as a Python Library
 
 You can also import `notion_graph` as a library.
