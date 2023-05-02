@@ -173,7 +173,8 @@ requires_python = ">=3.7"
 summary = "Sniff out which async library your code is running under"
 
 [metadata]
-lock_version = "4.1"
+lock_version = "4.2"
+groups = ["default"]
 content_hash = "sha256:8852c0b30734b2cc32a2e1fa1c69ebf863930437e32d1e3b29199307736ba6ef"
 
 [metadata.files]

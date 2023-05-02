@@ -136,7 +136,7 @@ run_local.sh
 .vscode
 
 # PDM
-.pdm.toml
+.pdm-python
 __pypackages__/
 
 **/*.png
