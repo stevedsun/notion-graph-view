@@ -105,22 +105,22 @@ pdm run start -p <page_id> -t <notion_token> -o ./graph_out.png
 
 |                    | database | page |
 | ------------------ | -------- | ---- |
-| paragraph          | ✔️       | ✔️   |
-| bulleted_list_item | ✔️       | ✔️   |
-| numbered_list_item | ✔️       | ✔️   |
-| to_do              | ✔️       | ✔️   |
-| toggle             | ✔️       | ✔️   |
-| child_page         | ✔️       | ✔️   |
-| child_database     | ✔️       | ✔️   |
+| paragraph          | 🗸       | 🗸   |
+| bulleted_list_item | 🗸       | 🗸   |
+| numbered_list_item | 🗸       | 🗸   |
+| to_do              | 🗸       | 🗸   |
+| toggle             | 🗸       | 🗸   |
+| child_page         | 🗸       | 🗸   |
+| child_database     | 🗸       | 🗸   |
 | embed              |          |      |
-| callout            | ✔️       | ✔️   |
-| quote              | ✔️       | ✔️   |
-| heading_1          | ✔️       | ✔️   |
-| heading_2          | ✔️       | ✔️   |
-| heading_3          | ✔️       | ✔️   |
+| callout            | 🗸       | 🗸   |
+| quote              | 🗸       | 🗸   |
+| heading_1          | 🗸       | 🗸   |
+| heading_2          | 🗸       | 🗸   |
+| heading_3          | 🗸       | 🗸   |
 | column             |          |      |
 | column_list        |          |      |
 | synced_block       |          |      |
 | link_to_page       |          |      |
-| table              | ✔️       | ✔️   |
-| table_row          | ✔️       | ✔️   |
+| table              | 🗸       | 🗸   |
+| table_row          | 🗸       | 🗸   |
