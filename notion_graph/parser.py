@@ -288,14 +288,25 @@ class Parser:
                 "id": "960ce6bd-eeb8-4674-bf79-996ff40e14f8"
             }
         }
-        '''
-        block = self._notion.blocks.retrieve(
-            mention_obj[mention_obj['type']]['id'])
 
-        title = block[block['type']]['title']
-        print('Found mention node:', title)
-        self._graph.add_node(block['id'], title=title)
-        self._graph.add_edge(parent_page_or_database_id, block['id'])
+        {'type': 'date', 'date': {'start': '2022-11-25', 'end': None, 'time_zone': None}}
+        '''
+        try:
+            if mention_obj['type'] == 'page':
+                block = self._notion.blocks.retrieve(
+                    mention_obj[mention_obj['type']]['id'])
+
+                title = block[block['type']]['title']
+                print('Found mention node:', title)
+                self._graph.add_node(block['id'], title=title)
+                self._graph.add_edge(parent_page_or_database_id, block['id'])
+            elif mention_obj['type'] == 'date':
+                pass
+            else:
+                print(mention_obj)
+        except:
+            print('Found external link page: ', mention_obj)
+
 
     def _retrieve_page_or_database_title(self, page_or_database_id: str, parent_page_or_database_id: str):
         block = self._notion.blocks.retrieve(page_or_database_id)
