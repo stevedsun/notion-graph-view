@@ -36,7 +36,6 @@ class Parser:
                               width="100%",
                               cdn_resources="in_line",
                               select_menu=True,
-                              filter_menu=True,
                               )
 
     def parse(self, root_id: str) -> Network:
