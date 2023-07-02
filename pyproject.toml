@@ -5,7 +5,7 @@ start = "python -m notion_graph"
 
 [project]
 name = "notion-graph"
-version = "0.2.3"
+version = "0.2.4"
 description = "Generate a roam research like network graph view from your Notion pages."
 authors = [
     {name = "Steve Sun", email = "sund.chn@gmail.com"},
