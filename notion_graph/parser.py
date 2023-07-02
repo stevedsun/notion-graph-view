@@ -11,9 +11,8 @@ mention object -> database title | page title
 '''
 
 from notion_client import Client
-import networkx as nx
-import matplotlib.pyplot as plt
-from .helper import contains_mention_or_relation_type
+from pyvis.network import Network
+from .helper import contains_mention_or_relation_type, is_same_block_id
 
 __all__ = ["Parser"]
 
@@ -31,38 +30,22 @@ SUPPORTED_PAGE_PROPERTY_TYPES = [
 class Parser:
     def __init__(self, notion_version: str, bearer_token: str) -> None:
         self._notion = Client(notion_version=notion_version, auth=bearer_token)
-        self._graph = nx.Graph()
-        self._caching_ids = set()
+        self._graph = Network(bgcolor="#222222",
+                              font_color="white",
+                              height="750px",
+                              width="100%",
+                              select_menu=True,
+                              filter_menu=True,
+                              )
 
-    def parse(self, root_id: str) -> nx.Graph:
+    def parse(self, root_id: str) -> Network:
         self._parse_block(root_id)
         return self._graph
 
-    def export_to_png(self, png_path: str, font: str):
-        pos = nx.spring_layout(self._graph)
-        labels = nx.get_node_attributes(self._graph, 'title')
-        font_family = 'sans-serif'
-        if font:
-            font_family = font
-
-        options = {
-            "node_size": 10,
-            "node_color": "black",
-            "edge_color": "tab:gray",
-            "linewidths": 0.5,
-            "font_family": font_family,
-            "font_size": 6,
-            "font_color": "black",
-            "width": 0.5,
-            "with_labels": True,
-            "labels": labels,
-            "alpha": 0.7,
-            "verticalalignment": 'bottom',
-        }
-
-        nx.draw(self._graph, pos, **options)
-        plt.savefig(png_path, dpi=300)
-        print('Graph image is generated at:', png_path)
+    def export_to_html(self, file_path: str):
+        print('Graph is generated at:', file_path)
+        self._graph.repulsion(node_distance=200, spring_length=200)
+        self._graph.save_graph(file_path)
 
     def _parse_block(self, root_id: str, obj: dict = None) -> None:
         if obj is None:
@@ -276,7 +259,7 @@ class Parser:
             block = self._notion.blocks.retrieve(relation_obj['id'])
             title = block[block['type']]['title']
             print('Found relation node:', title)
-            self._graph.add_node(block['id'], title=title)
+            self._graph.add_node(block['id'], label=title)
             self._graph.add_edge(parent_page_or_database_id, block['id'])
 
     def _retrieve_mention_object_title(self, mention_obj: dict, parent_page_or_database_id: str):
@@ -295,12 +278,14 @@ class Parser:
 
             title = block[block['type']]['title']
             print('Found mention node:', title)
-            self._graph.add_node(block['id'], title=title)
+            self._graph.add_node(block['id'], label=title)
             self._graph.add_edge(parent_page_or_database_id, block['id'])
 
     def _retrieve_page_or_database_title(self, page_or_database_id: str, parent_page_or_database_id: str):
         block = self._notion.blocks.retrieve(page_or_database_id)
         title = block[block['type']]['title']
         print('Found node:', title)
-        self._graph.add_node(page_or_database_id, title=title)
-        self._graph.add_edge(parent_page_or_database_id, page_or_database_id)
+        self._graph.add_node(page_or_database_id, label=title)
+        if not is_same_block_id(page_or_database_id, parent_page_or_database_id):
+            self._graph.add_edge(
+                parent_page_or_database_id, page_or_database_id)

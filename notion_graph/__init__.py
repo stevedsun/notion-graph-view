@@ -17,6 +17,6 @@ class NotionGraph:
         """Parse a given Notion page, get the Networkx graph data object"""
         return self._parser.parse(page_id)
 
-    def export(self, png_file_path):
-        """Export the Networkx graph to a png file"""
-        return self._parser.export_to_png(png_file_path)
+    def export(self, file_path):
+        """Export the Networkx graph to a file"""
+        return self._parser.export_to_html(file_path)

@@ -38,17 +38,17 @@ python -m notion_graph -p <Page ID> -t <Integration Token> -o <PNG file path to 
 For instance,
 
 ```shell
-python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e -o ./graph_out.png
+python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e -o ./graph_out.html
 ```
 
-`graph_out.png` would be generated at your specific path.
+`graph_out.html` would be generated at your specific path.
 
 ### Specific Font Family
 
 Matplotlib by default does not support displaying Unicode characters. To resolve this issue, specify your local font family by using `-f`:
 
 ```shell
-python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e -o ./graph_out.png -f 'SimSun'
+python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e -o ./graph_out.html -f 'SimSun'
 ```
 
 ### Importing as a Python Library
@@ -98,7 +98,7 @@ pdm install
 Running the project by:
 
 ```shell
-pdm run start -p <page_id> -t <notion_token> -o ./graph_out.png
+pdm run start -p <page_id> -t <notion_token> -o ./graph_out.html
 ```
 
 ## 🔗 Supported Links

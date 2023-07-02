@@ -140,3 +140,4 @@ run_local.sh
 __pypackages__/
 
 **/*.png
+**/*.html
