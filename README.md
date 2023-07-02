@@ -98,8 +98,8 @@ pdm run start -p <page_id> -t <notion_token> -o ./graph_out.html
 | heading_1          | ✔️       | ✔️   |
 | heading_2          | ✔️       | ✔️   |
 | heading_3          | ✔️       | ✔️   |
-| column             |          |      |
-| column_list        |          |      |
+| column             | ✔️       | ✔️   |
+| column_list        | ✔️       | ✔️   |
 | synced_block       |          |      |
 | link_to_page       |          |      |
 | table              | ✔️       | ✔️   |
