@@ -32,7 +32,7 @@ pip install notion-graph
 ### Quickly Running
 
 ```shell
-python -m notion_graph -p <Page ID> -t <Integration Token> -o <PNG file path to export>
+python -m notion_graph -p <Page ID> -t <Integration Token> -o <file path to export>
 ```
 
 For instance,
@@ -43,43 +43,19 @@ python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n
 
 `graph_out.html` would be generated at your specific path.
 
-### Specific Font Family
-
-Matplotlib by default does not support displaying Unicode characters. To resolve this issue, specify your local font family by using `-f`:
-
-```shell
-python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e -o ./graph_out.html -f 'SimSun'
-```
-
 ### Importing as a Python Library
 
 You can also import `notion_graph` as a library.
 
-For instance, drawing your own diagram by [matplotlib](https://matplotlib.org/).
+For instance, drawing your own diagram in Jupyter Notebook by [pyvis](https://pyvis.readthedocs.io/en/latest/).
 
 ```python
 import notion_graph as ng
-import networkx as nx
-import matplotlib.pyplot as plt
 
 my_ng = ng.NotionGraph(bearer_token="secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e")
 graph = my_ng.parse(page_id="856391c93ae64bd1b7ebf699ca0cd861")
-# graph is a networkx.classes.graph.Graph object
-
-pos = nx.spring_layout(graph)
-labels = nx.get_node_attributes(graph, 'title')
-options = {
-    "node_size": 50,
-    "node_color": "tab:gray",
-    "font_size": 10,
-    "width": 0.5,
-    "with_labels": True,
-    "labels": labels
-}
-
-nx.draw(graph, pos, **options)
-plt.show()
-plt.savefig('./graph.png')
+# graph is a pyvis.network.Network object
+graph.show("graph.html", notebook=True)
 ```
 
 ## Testing Environment
