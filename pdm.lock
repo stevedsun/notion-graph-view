@@ -216,7 +216,7 @@ summary = "Pygments is a syntax highlighting package written in Python."
 
 [[package]]
 name = "pyvis"
-version = "0.3.2"
+version = "0.3.1"
 requires_python = ">3.6"
 summary = "A Python network graph visualization library"
 dependencies = [
@@ -269,7 +269,7 @@ summary = "Measures the displayed width of unicode strings in a terminal"
 lock_version = "4.2"
 cross_platform = true
 groups = ["default"]
-content_hash = "sha256:7b65622ed04354808dd53e28893056ec634615964190a3a4ca57205076d96fca"
+content_hash = "sha256:be86e4ff192674055f8954f1c0dbbdbbb0066cb70caac11598e08d9fe65b9267"
 
 [metadata.files]
 "anyio 3.7.0" = [
@@ -432,8 +432,8 @@ content_hash = "sha256:7b65622ed04354808dd53e28893056ec634615964190a3a4ca5720507
     {url = "https://files.pythonhosted.org/packages/34/a7/37c8d68532ba71549db4212cb036dbd6161b40e463aba336770e80c72f84/Pygments-2.15.1-py3-none-any.whl", hash = "sha256:db2db3deb4b4179f399a09054b023b6a586b76499d36965813c71aa8ed7b5fd1"},
     {url = "https://files.pythonhosted.org/packages/89/6b/2114e54b290824197006e41be3f9bbe1a26e9c39d1f5fa20a6d62945a0b3/Pygments-2.15.1.tar.gz", hash = "sha256:8ace4d3c1dd481894b2005f560ead0f9f19ee64fe983366be1a21e171d12775c"},
 ]
-"pyvis 0.3.2" = [
-    {url = "https://files.pythonhosted.org/packages/ab/4b/e37e4e5d5ee1179694917b445768bdbfb084f5a59ecd38089d3413d4c70f/pyvis-0.3.2-py3-none-any.whl", hash = "sha256:5720c4ca8161dc5d9ab352015723abb7a8bb8fb443edeb07f7a322db34a97555"},
+"pyvis 0.3.1" = [
+    {url = "https://files.pythonhosted.org/packages/4f/b0/b6479739f9fc716784a71008322974f3a008c4203d6fff0653050fa93e45/pyvis-0.3.1.tar.gz", hash = "sha256:aa817caac54afc9a4df38ada6f46636b842a8bd57197bb6aca5084699da04307"},
 ]
 "six 1.16.0" = [
     {url = "https://files.pythonhosted.org/packages/71/39/171f1c67cd00715f190ba0b100d606d440a28c93c7714febeca8b79af85e/six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
