@@ -34,6 +34,7 @@ class Parser:
                               font_color="white",
                               height="750px",
                               width="100%",
+                              cdn_resources="in_line",
                               select_menu=True,
                               filter_menu=True,
                               )

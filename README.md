@@ -47,15 +47,19 @@ python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n
 
 You can also import `notion_graph` as a library.
 
-For instance, drawing your own diagram in Jupyter Notebook by [pyvis](https://pyvis.readthedocs.io/en/latest/).
+For instance, drawing your own diagram in Jupyter Notebook.
 
 ```python
 import notion_graph as ng
 
 my_ng = ng.NotionGraph(bearer_token="secret_b8p7uLp3j3n95IDgofC9GviXP111Skx6NOt2d20U8e")
-graph = my_ng.parse(page_id="856391c93ae64bd1b7ebf699ca0cd861")
-# graph is a pyvis.network.Network object
-graph.show("graph.html", notebook=True)
+network = my_ng.parse(page_id="856391c93ae64bd1b7ebf699ca0cd861")
+# `network` is a `pyvis.network.Network` object, see more attributes: https://pyvis.readthedocs.io/en/latest/documentation.html
+network.repulsion(node_distance=200, spring_length=200)
+# this line is for jupeter notebook only
+network.prep_notebook()
+
+network.show("graph.html")
 ```
 
 ## Testing Environment
