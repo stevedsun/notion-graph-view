@@ -64,7 +64,7 @@ network.show("graph.html")
 
 ## Testing Environment
 
-The testing page is [Notion-grap-view-demo](https://sund.notion.site/Notion-graph-view-Demo-856391c93ae64bd1b7ebf699ca0cd861). You can duplicate the page to your Notion account and run the project to test if everything goes well.
+The testing page is [Notion-graph-view-demo](https://sund.notion.site/Notion-graph-view-Demo-856391c93ae64bd1b7ebf699ca0cd861). You can duplicate the page to your Notion account and run the project to test if everything goes well.
 
 ## Development Guide
 
