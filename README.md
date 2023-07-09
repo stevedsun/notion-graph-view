@@ -24,8 +24,8 @@ pip install notion-graph
 
    👉 [Learn more about authorization](https://developers.notion.com/docs/authorization)
 
-2. Open one notion page on browser, select "Add connections" and add your integration account.
-3. Find your base `Page ID` from browser url, for example:
+2. Open one notion page on the browser, select "Add connections" and add your integration account.
+3. Find your base `Page `ID` from the browser URL, for example:
 
 > if page url is: https://www.notion.so/yourName/PageTitle-8a4b5ff100d648fb8d39d4bfa756ff3f, `8a4b5ff100da48fb8d39d4bfa756ff3f` is the `Page ID`
 
@@ -47,7 +47,7 @@ python -m notion_graph -p 856391c93ae64bd1b7ebf699ca0cd861 -t secret_b8p7uLp3j3n
 
 You can also import `notion_graph` as a library.
 
-For instance, drawing your own diagram in Jupyter Notebook.
+For instance, draw your diagram in Jupyter Notebook.
 
 ```python
 import notion_graph as ng
