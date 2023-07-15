@@ -12,7 +12,8 @@ column_list -> column -> block
 table -> table_row -> block
 '''
 
-from notion_client import Client, APIResponseError
+import time
+from notion_client import Client, APIResponseError, APIErrorCode
 from pyvis.network import Network
 from .helper import contains_mention_or_relation_type, is_same_block_id
 
@@ -41,11 +42,13 @@ class Parser:
                               )
 
     def parse(self, root_id: str) -> Network:
+        print('Parsing ...')
         self._parse_block(root_id)
+        print('Prasing ... done')
         return self._graph
 
     def export_to_html(self, file_path: str):
-        print('Graph is generated at:', file_path, end='\r', flush=True)
+        print('Graph is generated at:', file_path)
         self._graph.repulsion(node_distance=200, spring_length=200)
         self._graph.show(file_path)
 
@@ -54,7 +57,11 @@ class Parser:
             try:
                 obj = self._notion.blocks.retrieve(root_id)
             except APIResponseError:
-                return
+                if APIResponseError.code == APIErrorCode.RateLimited:
+                    time.sleep(1)
+                    obj = self._notion.blocks.retrieve(root_id)
+                else:
+                    return
 
         self._parse_block_object(obj, root_id)
 
@@ -63,7 +70,11 @@ class Parser:
             try:
                 obj = self._notion.databases.retrieve(id)
             except APIResponseError:
-                return
+                if APIResponseError.code == APIErrorCode.RateLimited:
+                    time.sleep(1)
+                    obj = self._notion.databases.retrieve(id)
+                else:
+                    return
 
         if obj['archived']:
             return
@@ -76,7 +87,11 @@ class Parser:
             try:
                 obj = self._notion.pages.retrieve(id)
             except APIResponseError:
-                return
+                if APIResponseError.code == APIErrorCode.RateLimited:
+                    time.sleep(1)
+                    obj = self._notion.pages.retrieve(id)
+                else:
+                    return
 
         if obj['archived']:
             return
@@ -216,7 +231,12 @@ class Parser:
                 data = self._notion.databases.query(
                     database_id, page_size=100, start_cursor=next_cursor)
             except APIResponseError:
-                return
+                if APIResponseError.code == APIErrorCode.RateLimited:
+                    time.sleep(1)
+                    data = self._notion.databases.query(
+                        database_id, page_size=100, start_cursor=next_cursor)
+                else:
+                    return
 
             pages = data['results']
             has_more = data['has_more']
@@ -228,7 +248,11 @@ class Parser:
         try:
             list_object = self._notion.blocks.children.list(block_id)
         except APIResponseError:
-            return
+            if APIResponseError.code == APIErrorCode.RateLimited:
+                time.sleep(1)
+                list_object = self._notion.blocks.children.list(block_id)
+            else:
+                return
 
         block_list = list_object['results']
 
@@ -285,10 +309,13 @@ class Parser:
             try:
                 block = self._notion.blocks.retrieve(relation_obj['id'])
             except APIResponseError:
-                continue
+                if APIResponseError.code == APIErrorCode.RateLimited:
+                    time.sleep(1)
+                    block = self._notion.blocks.retrieve(relation_obj['id'])
+                else:
+                    continue
 
             title = block[block['type']]['title']
-            print('Found relation node:', title, end='\r', flush=True)
             self._graph.add_node(block['id'], label=title)
             self._graph.add_edge(parent_page_or_database_id, block['id'])
 
@@ -307,10 +334,14 @@ class Parser:
                 block = self._notion.blocks.retrieve(
                     mention_obj[mention_obj['type']]['id'])
             except APIResponseError:
-                return
+                if APIResponseError.code == APIErrorCode.RateLimited:
+                    time.sleep(1)
+                    block = self._notion.blocks.retrieve(
+                        mention_obj[mention_obj['type']]['id'])
+                else:
+                    return
 
             title = block[block['type']]['title']
-            print('Found mention node:', title, end='\r', flush=True)
             self._graph.add_node(block['id'], label=title)
             self._graph.add_edge(parent_page_or_database_id, block['id'])
 
@@ -318,10 +349,13 @@ class Parser:
         try:
             block = self._notion.blocks.retrieve(page_or_database_id)
         except APIResponseError:
-            return
+            if APIResponseError.code == APIErrorCode.RateLimited:
+                time.sleep(1)
+                block = self._notion.blocks.retrieve(page_or_database_id)
+            else:
+                return
 
         title = block[block['type']]['title']
-        print('Found node:', title, end='\r', flush=True)
         self._graph.add_node(page_or_database_id, label=title)
         if not is_same_block_id(page_or_database_id, parent_page_or_database_id):
             self._graph.add_edge(
