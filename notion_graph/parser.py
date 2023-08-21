@@ -12,6 +12,7 @@ column_list -> column -> block
 table -> table_row -> block
 '''
 
+from typing import Any
 import time
 from notion_client import Client, APIResponseError, APIErrorCode
 from pyvis.network import Network
@@ -34,7 +35,7 @@ class Parser:
     def __init__(self, notion_version: str, bearer_token: str) -> None:
         self._notion = Client(notion_version=notion_version, auth=bearer_token)
         self._graph = Network(bgcolor="#222222",
-                              font_color="white",
+                              font_color=True,
                               height="750px",
                               width="100%",
                               cdn_resources="in_line",
@@ -52,7 +53,7 @@ class Parser:
         self._graph.repulsion(node_distance=200, spring_length=200)
         self._graph.show(file_path)
 
-    def _parse_block(self, root_id: str, obj: dict = None) -> None:
+    def _parse_block(self, root_id: str, obj: Any = None) -> None:
         if obj is None:
             try:
                 obj = self._notion.blocks.retrieve(root_id)
@@ -65,7 +66,7 @@ class Parser:
 
         self._parse_block_object(obj, root_id)
 
-    def _parse_database(self, id: str, obj: dict = None, parent_page_or_database_id: str = None) -> None:
+    def _parse_database(self, id: str, obj: Any = None, parent_page_or_database_id: str = "") -> None:
         if obj is None:
             try:
                 obj = self._notion.databases.retrieve(id)
@@ -82,7 +83,7 @@ class Parser:
         self._retrieve_page_or_database_title(id, parent_page_or_database_id)
         self._parse_database_pages(id)
 
-    def _parse_page(self, id: str, obj: dict = None, parent_page_or_database_id: str = None) -> None:
+    def _parse_page(self, id: str, obj: Any = None, parent_page_or_database_id: str = "") -> None:
         if obj is None:
             try:
                 obj = self._notion.pages.retrieve(id)
@@ -99,7 +100,7 @@ class Parser:
         self._retrieve_page_or_database_title(id, parent_page_or_database_id)
         self._parse_page_properties(obj['properties'], id)
 
-    def _parse_block_object(self, obj: dict, parent_page_or_database_id: str = None) -> None:
+    def _parse_block_object(self, obj: dict, parent_page_or_database_id: str = "") -> None:
         '''API Ref: https://developers.notion.com/reference/block#block-type-object
 
         Example:
@@ -238,11 +239,12 @@ class Parser:
                 else:
                     return
 
-            pages = data['results']
-            has_more = data['has_more']
-            next_cursor = data['next_cursor']
-            for page in pages:
-                self._parse_page(page['id'], None, database_id)
+            if isinstance(data, dict):
+                pages = data['results']
+                has_more = data['has_more']
+                next_cursor = data['next_cursor']
+                for page in pages:
+                    self._parse_page(page['id'], None, database_id)
 
     def _parse_block_children(self, block_id: str, parent_page_or_database_id: str) -> None:
         try:
@@ -254,10 +256,11 @@ class Parser:
             else:
                 return
 
-        block_list = list_object['results']
+        if isinstance(list_object, dict):
+            block_list = list_object['results']
 
-        for block in block_list:
-            self._parse_block_object(block, parent_page_or_database_id)
+            for block in block_list:
+                self._parse_block_object(block, parent_page_or_database_id)
 
     def _parse_cells_metrics(self, cells_metrics: list, parent_page_or_database_id: str) -> None:
         for row_cells in cells_metrics:
@@ -315,9 +318,10 @@ class Parser:
                 else:
                     continue
 
-            title = block[block['type']]['title']
-            self._graph.add_node(block['id'], label=title)
-            self._graph.add_edge(parent_page_or_database_id, block['id'])
+            if isinstance(block, dict):
+                title = block[block['type']]['title']
+                self._graph.add_node(block['id'], label=title)
+                self._graph.add_edge(parent_page_or_database_id, block['id'])
 
     def _retrieve_mention_object_title(self, mention_obj: dict, parent_page_or_database_id: str):
         '''Example:
@@ -341,9 +345,10 @@ class Parser:
                 else:
                     return
 
-            title = block[block['type']]['title']
-            self._graph.add_node(block['id'], label=title)
-            self._graph.add_edge(parent_page_or_database_id, block['id'])
+            if isinstance(block, dict):
+                title = block[block['type']]['title']
+                self._graph.add_node(block['id'], label=title)
+                self._graph.add_edge(parent_page_or_database_id, block['id'])
 
     def _retrieve_page_or_database_title(self, page_or_database_id: str, parent_page_or_database_id: str):
         try:
@@ -355,8 +360,10 @@ class Parser:
             else:
                 return
 
-        title = block[block['type']]['title']
-        self._graph.add_node(page_or_database_id, label=title)
+        if isinstance(block, dict):
+            title = block[block['type']]['title']
+            self._graph.add_node(page_or_database_id, label=title)
+
         if not is_same_block_id(page_or_database_id, parent_page_or_database_id):
             self._graph.add_edge(
                 parent_page_or_database_id, page_or_database_id)
