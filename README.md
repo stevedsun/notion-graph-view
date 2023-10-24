@@ -27,7 +27,7 @@ pip install notion-graph
    👉 [Learn more about authorization](https://developers.notion.com/docs/authorization)
 
 2. Open one notion page on the browser, select "Add connections" and add your integration account.
-3. Find your base `Page `ID` from the browser URL, for example:
+3. Find your base `Page ID` from the browser URL, for example:
 
 > if page url is: https://www.notion.so/yourName/PageTitle-8a4b5ff100d648fb8d39d4bfa756ff3f, `8a4b5ff100da48fb8d39d4bfa756ff3f` is the `Page ID`
 
