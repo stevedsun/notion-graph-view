@@ -20,10 +20,12 @@ from .helper import contains_mention_or_relation_type, is_same_block_id
 
 __all__ = ["Parser"]
 
-# All heading blocks("heading_1", "heading_2", and "heading_3") support children when the is_toggleable property is true.
+# All heading blocks("heading_1", "heading_2", and "heading_3") support children when the is_toggleable property is
+# true.
 SUPPORTED_BLOCK_TYPES = [
     "paragraph", "bulleted_list_item", "numbered_list_item", "toggle", "to_do", "quote", "callout",
-    "column_list", "column", "child_page", "child_database", "table", "table_row", "heading_1", "heading_2",  "heading_3"
+    "column_list", "column", "child_page", "child_database", "table", "table_row", "heading_1", "heading_2",
+    "heading_3", "link_to_page"
 ]
 
 SUPPORTED_PAGE_PROPERTY_TYPES = [
