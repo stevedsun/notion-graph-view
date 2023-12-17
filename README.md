@@ -103,6 +103,6 @@ pdm run start -p <page_id> -t <notion_token> -o ./graph_out.html
 | column             | ✔️       | ✔️   |
 | column_list        | ✔️       | ✔️   |
 | synced_block       |          |      |
-| link_to_page       |          |      |
+| link_to_page       | ✔️       |  ✔️  |
 | table              | ✔️       | ✔️   |
 | table_row          | ✔️       | ✔️   |
