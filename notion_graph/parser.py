@@ -53,7 +53,9 @@ class Parser:
     def export_to_html(self, file_path: str):
         print('Graph is generated at:', file_path)
         self._graph.repulsion(node_distance=200, spring_length=200)
-        self._graph.show(file_path)
+        html = self._graph.generate_html()
+        with open(file_path, mode='w', encoding='utf-8') as fp:
+            fp.write(html)
 
     def _parse_block(self, root_id: str, obj: Any = None) -> None:
         if obj is None:
