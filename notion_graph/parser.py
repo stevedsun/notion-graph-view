@@ -106,6 +106,7 @@ class Parser:
         self._add_node(page)
         self._add_edge(parent_page_or_database_id, id)
         self._parse_page_properties(page['properties'], id)
+        self._parse_block_children(id, id)
 
     def _parse_block_object(self, obj: dict, parent_page_or_database_id: str = "") -> None:
         '''API Ref: https://developers.notion.com/reference/block#block-type-object
@@ -183,8 +184,6 @@ class Parser:
 
         if obj['type'] == 'child_page':
             self._parse_page(obj['id'], None, parent_page_or_database_id)
-            if obj['has_children']:
-                self._parse_block_children(obj['id'], obj['id'])
             return
 
         # column_list -> column -> block
@@ -217,6 +216,7 @@ class Parser:
         No need to deep search into relation pages, because if the relation page is under root page,
         it will be parsed as well; if the relation page is out of root page, it cannot be visited by this bearer token.
         '''
+
         if not contains_mention_or_relation_type(str(prop_obj)):
             return
 
@@ -362,7 +362,7 @@ class Parser:
         """
         url = block.get('url', '')
         title = block.get('title', None)
-        if not title:
+        if not title or not isinstance(title, str):
             if block['object'] == 'database':
                 title = block['title'][0]['plain_text']
             elif block['object'] == 'page':
@@ -373,6 +373,7 @@ class Parser:
             else:
                 title = block[block['type']]['title']
 
+        print("+node:", title)
         self._graph.add_node(
             block['id'],
             label=title,
