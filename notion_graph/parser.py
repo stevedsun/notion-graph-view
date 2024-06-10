@@ -32,17 +32,18 @@ SUPPORTED_PAGE_PROPERTY_TYPES = [
     "relation", "rich_text", "title"
 ]
 
+COLOR_BG = "#fff"
+COLOR_NODE = "#757575"
+
 
 class Parser:
     def __init__(self, notion_version: str, bearer_token: str) -> None:
         self._notion = Client(notion_version=notion_version, auth=bearer_token)
-        self._graph = Network(bgcolor="#222222",
-                              font_color=True,
-                              height="750px",
-                              width="100%",
-                              cdn_resources="in_line",
-                              select_menu=True,
-                              )
+        self._graph = Network(
+            bgcolor=COLOR_BG,
+            font_color=True,
+            height="750px",
+            cdn_resources="in_line")
 
     def parse(self, root_id: str) -> Network:
         print('Parsing ...')
@@ -70,39 +71,42 @@ class Parser:
 
         self._parse_block_object(obj, root_id)
 
-    def _parse_database(self, id: str, obj: Any = None, parent_page_or_database_id: str = "") -> None:
-        if obj is None:
+    def _parse_database(self, id: str, db: Any = None, parent_page_or_database_id: str = "") -> None:
+        if db is None:
             try:
-                obj = self._notion.databases.retrieve(id)
+                db = self._notion.databases.retrieve(id)
             except APIResponseError:
                 if APIResponseError.code == APIErrorCode.RateLimited:
                     time.sleep(1)
-                    obj = self._notion.databases.retrieve(id)
+                    db = self._notion.databases.retrieve(id)
                 else:
                     return
 
-        if obj['archived']:
+        if db['archived']:
             return
 
-        self._retrieve_page_or_database_title(id, parent_page_or_database_id)
+        self._add_node(db)
+        self._add_edge(parent_page_or_database_id, id)
         self._parse_database_pages(id)
 
-    def _parse_page(self, id: str, obj: Any = None, parent_page_or_database_id: str = "") -> None:
-        if obj is None:
+    def _parse_page(self, id: str, page: Any = None, parent_page_or_database_id: str = "") -> None:
+        if page is None:
             try:
-                obj = self._notion.pages.retrieve(id)
+                page = self._notion.pages.retrieve(id)
             except APIResponseError:
                 if APIResponseError.code == APIErrorCode.RateLimited:
                     time.sleep(1)
-                    obj = self._notion.pages.retrieve(id)
+                    page = self._notion.pages.retrieve(id)
                 else:
                     return
 
-        if obj['archived']:
+        if page['archived']:
             return
 
-        self._retrieve_page_or_database_title(id, parent_page_or_database_id)
-        self._parse_page_properties(obj['properties'], id)
+        self._add_node(page)
+        self._add_edge(parent_page_or_database_id, id)
+        self._parse_page_properties(page['properties'], id)
+        self._parse_block_children(id, id)
 
     def _parse_block_object(self, obj: dict, parent_page_or_database_id: str = "") -> None:
         '''API Ref: https://developers.notion.com/reference/block#block-type-object
@@ -180,8 +184,6 @@ class Parser:
 
         if obj['type'] == 'child_page':
             self._parse_page(obj['id'], None, parent_page_or_database_id)
-            if obj['has_children']:
-                self._parse_block_children(obj['id'], obj['id'])
             return
 
         # column_list -> column -> block
@@ -209,11 +211,12 @@ class Parser:
             self._parse_block_children(obj['id'], parent_page_or_database_id)
 
     def _parse_page_properties(self, prop_obj: dict, parent_page_or_database_id: str) -> None:
-        '''Search page properties which contains "mention" or "relation" type. 
+        '''Search page properties which contains "mention" or "relation" type.
 
-        No need to deep search into relation pages, because if the relation page is under root page, 
+        No need to deep search into relation pages, because if the relation page is under root page,
         it will be parsed as well; if the relation page is out of root page, it cannot be visited by this bearer token.
         '''
+
         if not contains_mention_or_relation_type(str(prop_obj)):
             return
 
@@ -303,7 +306,7 @@ class Parser:
                 self._retrieve_mention_object_title(
                     i['mention'], parent_page_or_database_id)
 
-    def _retrieve_relation_page_title(self, relation_list: list, parent_page_or_database_id: str):
+    def _retrieve_relation_page_title(self, relation_list: list, parent_page_or_database_id: str, **kwargs):
         '''Example:
 
         [
@@ -314,18 +317,17 @@ class Parser:
         '''
         for relation_obj in relation_list:
             try:
-                block = self._notion.blocks.retrieve(relation_obj['id'])
+                page = self._notion.pages.retrieve(relation_obj['id'])
             except APIResponseError:
                 if APIResponseError.code == APIErrorCode.RateLimited:
                     time.sleep(1)
-                    block = self._notion.blocks.retrieve(relation_obj['id'])
+                    page = self._notion.pages.retrieve(relation_obj['id'])
                 else:
                     continue
 
-            if isinstance(block, dict):
-                title = block[block['type']]['title']
-                self._graph.add_node(block['id'], label=title)
-                self._graph.add_edge(parent_page_or_database_id, block['id'])
+            if isinstance(page, dict):
+                self._add_node(page)
+                self._add_edge(parent_page_or_database_id, page['id'])
 
     def _retrieve_mention_object_title(self, mention_obj: dict, parent_page_or_database_id: str):
         '''Example:
@@ -339,35 +341,49 @@ class Parser:
         '''
         if mention_obj['type'] == 'page':
             try:
-                block = self._notion.blocks.retrieve(
+                page = self._notion.pages.retrieve(
                     mention_obj[mention_obj['type']]['id'])
             except APIResponseError:
                 if APIResponseError.code == APIErrorCode.RateLimited:
                     time.sleep(1)
-                    block = self._notion.blocks.retrieve(
+                    page = self._notion.pages.retrieve(
                         mention_obj[mention_obj['type']]['id'])
                 else:
                     return
 
-            if isinstance(block, dict):
-                title = block[block['type']]['title']
-                self._graph.add_node(block['id'], label=title)
-                self._graph.add_edge(parent_page_or_database_id, block['id'])
+            if isinstance(page, dict):
+                self._add_node(page)
+                self._add_edge(parent_page_or_database_id, page['id'])
 
-    def _retrieve_page_or_database_title(self, page_or_database_id: str, parent_page_or_database_id: str):
-        try:
-            block = self._notion.blocks.retrieve(page_or_database_id)
-        except APIResponseError:
-            if APIResponseError.code == APIErrorCode.RateLimited:
-                time.sleep(1)
-                block = self._notion.blocks.retrieve(page_or_database_id)
+    def _add_node(self, block: any, **kwargs):
+        """
+        :param block: any type of block, page, database
+        :kwargs url: page or database url
+        """
+        url = block.get('url', '')
+        title = block.get('title', None)
+        if not title or not isinstance(title, str):
+            if block['object'] == 'database':
+                title = block['title'][0]['plain_text']
+            elif block['object'] == 'page':
+                if block['parent']['type'] != "database_id":
+                    title = block['properties']['title']['title'][0]['plain_text']
+                else:
+                    title = block['properties']['Name']['title'][0]['plain_text']
             else:
-                return
+                title = block[block['type']]['title']
 
-        if isinstance(block, dict):
-            title = block[block['type']]['title']
-            self._graph.add_node(page_or_database_id, label=title)
+        print("+node:", title)
+        self._graph.add_node(
+            block['id'],
+            label=title,
+            title=f'<a href="{url}">open page</a>',
+            color=COLOR_NODE,
+            size=10,
+            borderWidth=0)
 
-        if not is_same_block_id(page_or_database_id, parent_page_or_database_id):
-            self._graph.add_edge(
-                parent_page_or_database_id, page_or_database_id)
+    def _add_edge(self, lnode_id: str, rnode_id: str):
+        if is_same_block_id(lnode_id, rnode_id):
+            return
+
+        self._graph.add_edge(lnode_id, rnode_id)
