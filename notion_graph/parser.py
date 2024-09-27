@@ -369,7 +369,12 @@ class Parser:
                 if block['parent']['type'] != "database_id":
                     title = block['properties']['title']['title'][0]['plain_text']
                 else:
-                    title = block['properties']['Name']['title'][0]['plain_text']
+                    try:
+                        title = block['properties']['Name']['title'][0]['plain_text']
+                    except KeyError:
+                        for key in block['properties'].keys():
+                            if block['properties'][key]["id"] == "title":
+                                title = block['properties'][key]['title'][0]['plain_text']
             else:
                 title = block[block['type']]['title']
 
